@@ -39,21 +39,22 @@ program
   .parse(process.argv);
 
 // No params
-if (program.rawArgs.length <= 2) {
+if (process.argv.length <= 2) {
   program.help();
   process.exit(1);
 }
 
 try {
+  const options = program.opts();
   let input;
   let output;
   let userConfig;
 
-  switch (program.input) {
+  switch (options.input) {
     case 'json':
       debug('Using JSON file input');
       input = require('./src/input/json')({
-        inPath: program.inpath,
+        inPath: options.inpath,
       });
       break;
 
@@ -63,16 +64,16 @@ try {
     case 'overpass':
       debug('Using Overpass input');
       input = require('./src/input/overpass')({
-        bbox: program.bbox,
-        cachePath: program.cachepath,
-        timeout: program.timeout,
+        bbox: options.bbox,
+        cachePath: options.cachepath,
+        timeout: options.timeout,
       });
       break;
 
     case 'pbf':
       debug('Using PBF file input');
       input = require('./src/input/pbf')({
-        inPath: program.inpath,
+        inPath: options.inpath,
       });
       break;
 
@@ -80,31 +81,31 @@ try {
       throw new Error('Unknown input');
   }
 
-  switch (program.output) {
+  switch (options.output) {
     case 'json':
       debug('Using JSON file output');
       output = require('./src/output/json')({
-        outPath: program.outpath,
+        outPath: options.outpath,
       });
       break;
 
     case 'json-compact':
       debug('Using JSON compact file output');
       output = require('./src/output/json-compact')({
-        outPath: program.outpath,
+        outPath: options.outpath,
       });
       break;
 
     case 'memory':
       throw new Error('Memory output is not supported in CLI');
 
-    case 'nulti':
+    case 'multi':
       throw new Error('Multi output is not supported in CLI');
 
     case 'sqlite':
       debug('Using SQLite file output');
       output = require('./src/output/sqlite')({
-        outPath: program.outpath,
+        outPath: options.outpath,
       });
       break;
 
@@ -112,13 +113,13 @@ try {
       throw new Error('Unknown output');
   }
 
-  if (program.config) {
-    if (!fs.existsSync(program.config)) {
+  if (options.config) {
+    if (!fs.existsSync(options.config)) {
       throw new Error('Unknown config path');
     }
 
     try {
-      userConfig = JSON.parse(fs.readFileSync(program.config));
+      userConfig = JSON.parse(fs.readFileSync(options.config));
     } catch (error) {
       throw new Error('Could not parse config');
     }
