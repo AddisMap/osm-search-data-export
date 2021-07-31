@@ -13,23 +13,23 @@
     "node": ">=11.0.0"
   },
   "dependencies": {
-    "@derhuerst/query-overpass": "^1.0.1",
-    "@turf/along": "^6.0.1",
-    "@turf/boolean-point-in-polygon": "^6.0.1",
-    "@turf/center-of-mass": "^6.0.1",
-    "@turf/concave": "^6.0.5",
-    "@turf/distance": "^6.0.1",
-    "@turf/helpers": "^6.1.4",
-    "@turf/length": "^6.0.2",
-    "better-sqlite3": "^5.4.0",
-    "commander": "^3.0.2",
-    "debug": "^4.1.1",
+    "@derhuerst/query-overpass": "^2.0.0",
+    "@turf/along": "^6.5.0",
+    "@turf/boolean-point-in-polygon": "^6.5.0",
+    "@turf/center-of-mass": "^6.5.0",
+    "@turf/concave": "^6.5.0",
+    "@turf/distance": "^6.5.0",
+    "@turf/helpers": "^6.5.0",
+    "@turf/length": "^6.5.0",
+    "better-sqlite3": "^7.4.3",
+    "commander": "^8.1.0",
+    "debug": "^4.3.2",
     "lodash.without": "^4.4.0",
     "osm-pbf-parser": "^2.3.0",
-    "through2": "^3.0.1"
+    "through2": "^4.0.2"
   },
   "devDependencies": {
-    "babel-eslint": "^10.0.3",
-    "eslint": "^6.5.1"
+    "@babel/eslint-parser": "^7.14.7",
+    "eslint": "^7.32.0"
   }
 }
