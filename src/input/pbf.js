@@ -3,6 +3,11 @@ const fs = require('fs');
 const parseOSM = require('osm-pbf-parser');
 const through = require('through2');
 
+const iterateItems = (onItem) => through.obj((chunk, enc, callback) => {
+  chunk.forEach(onItem);
+  callback();
+});
+
 function pbfInput({ inPath }) {
   return function ({ onItem, onComplete }) {
     if (!fs.existsSync(inPath)) {
@@ -11,12 +16,11 @@ function pbfInput({ inPath }) {
 
     debug('Parsing PBF file');
 
+
+
     fs.createReadStream(inPath)
       .pipe(parseOSM())
-      .pipe(through.obj((items, enc, next) => {
-        items.forEach(onItem);
-        next();
-      }))
+      .pipe(iterateItems(onItem))
       .on('finish', () => onComplete());
   };
 }
