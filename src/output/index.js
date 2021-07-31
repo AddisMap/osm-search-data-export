@@ -1,3 +1,4 @@
+/* eslint-disable global-require */
 module.exports = {
   jsonCompactOutput: require('./json-compact'),
   jsonOutput: require('./json'),

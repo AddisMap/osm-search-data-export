@@ -4,21 +4,21 @@ const path = require('path');
 
 function jsonCompactOutput({ outPath }) {
   if (!fs.existsSync(path.dirname(outPath))) {
-    throw new Error("Invalid JSON compact output path");
+    throw new Error('Invalid JSON compact output path');
   }
 
-  return function ({ pois, streets, streetJunctions }) {
-    const mappedPois = pois.map(poi => [
+  return function output({ pois, streets, streetJunctions }) {
+    const mappedPois = pois.map((poi) => [
       poi.name,
       poi.alternativeNames,
       poi.localizedNames,
       poi.coordinates,
       poi.address,
-      poi.type
+      poi.type,
     ]);
 
     const mappedStreets = {};
-    Object.keys(streets).forEach(key => {
+    Object.keys(streets).forEach((key) => {
       const street = streets[key];
       mappedStreets[key] = [
         street.name,
@@ -29,8 +29,8 @@ function jsonCompactOutput({ outPath }) {
     });
 
     const mappedStreetJunctions = {};
-    Object.keys(streetJunctions).forEach(key => {
-      mappedStreetJunctions[key] = streetJunctions[key].map(streetJunction => [
+    Object.keys(streetJunctions).forEach((key) => {
+      mappedStreetJunctions[key] = streetJunctions[key].map((streetJunction) => [
         streetJunction.streetRef,
         streetJunction.coordinates,
       ]);
@@ -41,14 +41,14 @@ function jsonCompactOutput({ outPath }) {
       _fields: {
         pois: ['name', 'alternativeNames', 'localizedNames', 'coordinates', 'address', 'type'],
         streets: ['name', 'alternativeNames', 'coordinates', 'region'],
-        streetJunctions: ['streetRef', 'coordinates']
+        streetJunctions: ['streetRef', 'coordinates'],
       },
       pois: mappedPois,
       streets: mappedStreets,
       streetJunctions: mappedStreetJunctions,
     };
 
-    debug("Writing JSON file");
+    debug('Writing JSON file');
     fs.writeFileSync(outPath, JSON.stringify(data));
   };
 }

@@ -22,7 +22,7 @@ function osmToSearchData(input, output, userConfig = {}) {
     onComplete: () => output(transformer.complete()),
   });
 
-  debug("Done");
+  debug('Done');
 }
 
 // Make input and output funcs available as static properties

@@ -9,14 +9,12 @@ const iterateItems = (onItem) => through.obj((chunk, enc, callback) => {
 });
 
 function pbfInput({ inPath }) {
-  return function ({ onItem, onComplete }) {
+  return function input({ onItem, onComplete }) {
     if (!fs.existsSync(inPath)) {
-      throw new Error("Invalid PBF input filename");
+      throw new Error('Invalid PBF input filename');
     }
 
     debug('Parsing PBF file');
-
-
 
     fs.createReadStream(inPath)
       .pipe(parseOSM())

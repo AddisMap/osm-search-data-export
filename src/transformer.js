@@ -9,6 +9,7 @@ const geoLength = require('@turf/length').default;
 const geoCenterOfMass = require('@turf/center-of-mass').default;
 const geoConcave = require('@turf/concave').default;
 const geoPointInPolygon = require('@turf/boolean-point-in-polygon').default;
+
 const intlCompare = new Intl.Collator().compare;
 
 function getCenterCoordsOfPath(path) {
@@ -54,15 +55,18 @@ class Transformation {
       case 'relation':
         this.processRelation(item);
         break;
+
+      default:
+        // Ignore unknown type
     }
   }
 
   complete() {
-    debug("Flattening street node groups");
+    debug('Flattening street node groups');
     this.flattenStreetNodeGroups();
-    debug("Extracting streets");
+    debug('Extracting streets');
     this.extractStreets();
-    debug("Extracting street junctions");
+    debug('Extracting street junctions');
     this.extractStreetJunctions();
 
     return {
@@ -72,7 +76,6 @@ class Transformation {
     };
   }
 
-  // eslint-disable-next-line complexity
   processNode(node) {
     const { tags = {}, lat, lon } = node;
     const { name } = tags;
@@ -90,17 +93,17 @@ class Transformation {
         tags.nat_name,
         tags.official_name,
         tags.reg_name,
-        tags.short_name
+        tags.short_name,
       ])
-      .filter(name => name != null);
+      .filter((altName) => altName != null);
 
     const nameLangs = Object.keys(tags)
-      .filter(tag => tag.indexOf('name:') === 0)
-      .map(tag => tag.substring(5));
+      .filter((tag) => tag.indexOf('name:') === 0)
+      .map((tag) => tag.substring(5));
 
     const localizedNames = {};
 
-    nameLangs.forEach(lang => {
+    nameLangs.forEach((lang) => {
       localizedNames[lang] = tags[`name:${lang}`];
     });
 
@@ -139,7 +142,7 @@ class Transformation {
 
     // For ways that run out of the bounding box, we might be
     // missing referenced nodes. Skip way in that case.
-    if (refs.find(ref => !this.nodes[ref])) {
+    if (refs.find((ref) => !this.nodes[ref])) {
       return;
     }
 
@@ -147,7 +150,7 @@ class Transformation {
     // a point of interest.
     if (this.hasSupportedStreetTags(tags)) {
       // Assign street name to node (a node can be linked to multiple streets)
-      refs.forEach(ref => {
+      refs.forEach((ref) => {
         this.nodeToStreet[ref] = this.nodeToStreet[ref] || [];
 
         if (this.nodeToStreet[ref].indexOf(name) === -1) {
@@ -171,7 +174,7 @@ class Transformation {
 
       // If this is a closed loop, take the center of the area as its coordinates.
       const isArea = refs[0] === refs[refs.length - 1];
-      const path = refs.map(nodeId => this.nodes[nodeId]);
+      const path = refs.map((nodeId) => this.nodes[nodeId]);
 
       if (isArea) {
         const lineString = geoLineString(path);
@@ -194,20 +197,20 @@ class Transformation {
   processRelation(relation) {
     // Grab relations defining municipalities (cities)
     if (
-      relation.tags &&
-      relation.tags.type === 'boundary' &&
-      relation.tags.boundary === 'administrative' &&
-      relation.tags.admin_level === '8'
+      relation.tags
+      && relation.tags.type === 'boundary'
+      && relation.tags.boundary === 'administrative'
+      && relation.tags.admin_level === '8'
     ) {
-      const name = relation.tags.name;
+      const { name } = relation.tags;
       const points = relation.members
-        .filter(member => member.type === 'way' && member.role === 'outer')
-        .map(member => this.ways[member.ref])
-        .filter(way => way != null)
-        .flatMap(way => way.refs || way.nodes)
-        .map(ref => this.nodes[ref])
-        .filter(coords => coords != null)
-        .map(coords => geoPoint(coords));
+        .filter((member) => member.type === 'way' && member.role === 'outer')
+        .map((member) => this.ways[member.ref])
+        .filter((way) => way != null)
+        .flatMap((way) => way.refs || way.nodes)
+        .map((ref) => this.nodes[ref])
+        .filter((coords) => coords != null)
+        .map((coords) => geoPoint(coords));
       const featureCollection = geoFeatureCollection(points);
       const hull = geoConcave(featureCollection);
 
@@ -267,7 +270,7 @@ class Transformation {
   // by looking at their distance to each other.
   flattenStreetNodeGroups() {
     Object.keys(this.streetToNodeGroups)
-      .forEach(street => {
+      .forEach((street) => {
         const sortedGroups = this.streetToNodeGroups[street].sort((a, b) => {
           const aFirst = geoPoint(this.nodes[a[0]]);
           const aLast = geoPoint(this.nodes[a[a.length - 1]]);
@@ -294,16 +297,18 @@ class Transformation {
 
     Object.keys(this.streetToNodes)
       .sort(intlCompare)
-      .forEach(street => {
-        const id = `s${i++}`;
+      .forEach((street) => {
+        const id = `s${i}`;
+        i += 1;
+
         this.streetsToIds[street] = id;
         this.idsToStreets[id] = street;
 
         const alternativeNames = this.streetAlternativeNames[street] || [];
-        const path = this.streetToNodes[street].map(nodeId => this.nodes[nodeId]);
+        const path = this.streetToNodes[street].map((nodeId) => this.nodes[nodeId]);
         const coordinates = getCenterCoordsOfPath(path);
         const centerPoint = geoPoint(coordinates);
-        const region = Object.keys(this.cityPolygons).find(name => {
+        const region = Object.keys(this.cityPolygons).find((name) => {
           const polygon = this.cityPolygons[name];
           return geoPointInPolygon(centerPoint, polygon);
         });
@@ -319,18 +324,18 @@ class Transformation {
 
   extractStreetJunctions() {
     Object.keys(this.nodeToStreet)
-      .forEach(nodeId => {
+      .forEach((nodeId) => {
         if (this.nodeToStreet[nodeId].length > 1) {
-          this.nodeToStreet[nodeId].forEach(street => {
+          this.nodeToStreet[nodeId].forEach((street) => {
             const streetId = this.streetsToIds[street];
 
             this.streetJunctions[streetId] = this.streetJunctions[streetId] || [];
 
             const existingStreetNames = this.streetJunctions[streetId]
-              .map(entry => this.idsToStreets[entry.streetRef]);
+              .map((entry) => this.idsToStreets[entry.streetRef]);
 
             const streetObjs = without(this.nodeToStreet[nodeId], street, ...existingStreetNames)
-              .map(junctionStreet => ({
+              .map((junctionStreet) => ({
                 streetRef: this.streetsToIds[junctionStreet],
                 coordinates: this.nodes[nodeId],
               }));
@@ -339,7 +344,7 @@ class Transformation {
               .concat(streetObjs)
               .sort((a, b) => intlCompare(
                 this.idsToStreets[a.streetRef],
-                this.idsToStreets[b.streetRef]
+                this.idsToStreets[b.streetRef],
               ));
           });
         }

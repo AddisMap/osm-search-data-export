@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+/* eslint-disable no-console */
+/* eslint-disable global-require */
 
 const fs = require('fs');
 const debug = require('debug')('osm-search-data-export');
@@ -31,15 +33,15 @@ program
     console.log('  sqlite - Write search data into a SQLite db file');
     console.log('');
     console.log('Examples:');
-    console.log(`  $ ${pkg.name} --input pbf --inpath data.pbf --output json --outpath search.json`)
-    console.log(`  $ ${pkg.name} --input overpass --bbox -21.604769,-64.819679,-21.477032,-64.631195 --output sqlite --outpath search.db`)
+    console.log(`  $ ${pkg.name} --input pbf --inpath data.pbf --output json --outpath search.json`);
+    console.log(`  $ ${pkg.name} --input overpass --bbox -21.604769,-64.819679,-21.477032,-64.631195 --output sqlite --outpath search.db`);
   })
   .parse(process.argv);
 
 // No params
 if (program.rawArgs.length <= 2) {
   program.help();
-  return 1;
+  process.exit(1);
 }
 
 try {
@@ -49,7 +51,7 @@ try {
 
   switch (program.input) {
     case 'json':
-      debug("Using JSON file input");
+      debug('Using JSON file input');
       input = require('./src/input/json')({
         inPath: program.inpath,
       });
@@ -59,7 +61,7 @@ try {
       throw new Error('Memory input is not supported in CLI');
 
     case 'overpass':
-      debug("Using Overpass input");
+      debug('Using Overpass input');
       input = require('./src/input/overpass')({
         bbox: program.bbox,
         cachePath: program.cachepath,
@@ -68,7 +70,7 @@ try {
       break;
 
     case 'pbf':
-      debug("Using PBF file input");
+      debug('Using PBF file input');
       input = require('./src/input/pbf')({
         inPath: program.inpath,
       });
@@ -80,14 +82,14 @@ try {
 
   switch (program.output) {
     case 'json':
-      debug("Using JSON file output");
+      debug('Using JSON file output');
       output = require('./src/output/json')({
         outPath: program.outpath,
       });
       break;
 
     case 'json-compact':
-      debug("Using JSON compact file output");
+      debug('Using JSON compact file output');
       output = require('./src/output/json-compact')({
         outPath: program.outpath,
       });
@@ -100,7 +102,7 @@ try {
       throw new Error('Multi output is not supported in CLI');
 
     case 'sqlite':
-      debug("Using SQLite file output");
+      debug('Using SQLite file output');
       output = require('./src/output/sqlite')({
         outPath: program.outpath,
       });
@@ -118,15 +120,14 @@ try {
     try {
       userConfig = JSON.parse(fs.readFileSync(program.config));
     } catch (error) {
-      throw new Error("Could not parse config");
+      throw new Error('Could not parse config');
     }
   }
 
   // Run!
   exportSearchData(input, output, userConfig);
-
 } catch (error) {
   console.log(`${pkg.name}: ${error.message}`);
   console.log(`Try '${pkg.name} --help' for more information.`);
-  return 1;
+  process.exit(1);
 }

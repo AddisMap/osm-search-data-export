@@ -1,6 +1,6 @@
 function multiOutput(...targets) {
-  return function (data) {
-    targets.forEach(target => target(data));
+  return function output(data) {
+    targets.forEach((target) => target(data));
   };
 }
 

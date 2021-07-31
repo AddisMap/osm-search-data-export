@@ -1,12 +1,12 @@
 const debug = require('debug')('osm-search-data-export');
-const fs = require('fs')
+const fs = require('fs');
 const path = require('path');
 const Database = require('better-sqlite3');
 
 function sqliteOutput({ outPath }) {
-  return function ({ pois, streets, streetJunctions }) {
+  return function output({ pois, streets, streetJunctions }) {
     if (!fs.existsSync(path.dirname(outPath))) {
-      throw new Error("Invalid SQLite output path");
+      throw new Error('Invalid SQLite output path');
     }
 
     if (fs.existsSync(outPath)) {
@@ -117,9 +117,9 @@ function sqliteOutput({ outPath }) {
         ORDER BY title, subtitle;
     `);
 
-    const poiStmt = db.prepare("INSERT INTO pois VALUES (?, ?, ?, ?, ?, ?)");
-    const poiAltStmt = db.prepare("INSERT INTO poi_altnames VALUES (?, ?)");
-    const poiLocStmt = db.prepare("INSERT INTO poi_locnames VALUES (?, ?, ?)");
+    const poiStmt = db.prepare('INSERT INTO pois VALUES (?, ?, ?, ?, ?, ?)');
+    const poiAltStmt = db.prepare('INSERT INTO poi_altnames VALUES (?, ?)');
+    const poiLocStmt = db.prepare('INSERT INTO poi_locnames VALUES (?, ?, ?)');
 
     pois.forEach((poi, id) => {
       poiStmt.run(
@@ -128,20 +128,20 @@ function sqliteOutput({ outPath }) {
         poi.coordinates[1],
         poi.coordinates[0],
         poi.address,
-        poi.type
+        poi.type,
       );
 
       poi.alternativeNames
-        .forEach(altName => poiAltStmt.run(id, altName));
+        .forEach((altName) => poiAltStmt.run(id, altName));
 
       Object.keys(poi.localizedNames)
-        .forEach(loc => poiLocStmt.run(id, poi.localizedNames[loc], loc));
+        .forEach((loc) => poiLocStmt.run(id, poi.localizedNames[loc], loc));
     });
 
-    const streetStmt = db.prepare("INSERT INTO streets VALUES (?, ?, ?, ?, ?)");
-    const streetAltStmt = db.prepare("INSERT INTO street_altnames VALUES (?, ?)");
+    const streetStmt = db.prepare('INSERT INTO streets VALUES (?, ?, ?, ?, ?)');
+    const streetAltStmt = db.prepare('INSERT INTO street_altnames VALUES (?, ?)');
 
-    Object.keys(streets).forEach(id => {
+    Object.keys(streets).forEach((id) => {
       const street = streets[id];
       const numericId = id.substr(1);
 
@@ -154,18 +154,18 @@ function sqliteOutput({ outPath }) {
       );
 
       street.alternativeNames
-        .forEach(altName => streetAltStmt.run(numericId, altName));
+        .forEach((altName) => streetAltStmt.run(numericId, altName));
     });
 
-    streetJunctionStmt = db.prepare("INSERT INTO street_junctions VALUES (?, ?, ?, ?)");
+    const streetJunctionStmt = db.prepare('INSERT INTO street_junctions VALUES (?, ?, ?, ?)');
 
-    Object.keys(streetJunctions).forEach(streetRef => {
-      streetJunctions[streetRef].forEach(junction => {
+    Object.keys(streetJunctions).forEach((streetRef) => {
+      streetJunctions[streetRef].forEach((junction) => {
         streetJunctionStmt.run(
           streetRef.substr(1),
           junction.streetRef.substr(1),
           junction.coordinates[1],
-          junction.coordinates[0]
+          junction.coordinates[0],
         );
       });
     });

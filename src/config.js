@@ -10,7 +10,7 @@ const defaultConfig = {
     'man_made',
     'natural',
     'tourism',
-    'public_transport'
+    'public_transport',
   ],
   pathTypes: [
     'motorway',
@@ -24,7 +24,7 @@ const defaultConfig = {
     'trunk_link',
     'primary_link',
     'secondary_link',
-    'tertiary_link'
+    'tertiary_link',
   ],
   leisureTypes: [
     'adult_gaming_centre',
@@ -56,7 +56,7 @@ const defaultConfig = {
     'swimming_area',
     'swimming_pool',
     'track',
-    'water_park'
+    'water_park',
   ],
   manMadeTypes: [
     'bridge',
@@ -72,12 +72,12 @@ const defaultConfig = {
     'pier',
     'telescope',
     'windmill',
-    'works'
+    'works',
   ],
-}
+};
 
 function createConfig(userConfig) {
-  return Object.assign({}, defaultConfig, userConfig);
+  return { ...defaultConfig, ...userConfig };
 }
 
 module.exports = createConfig;

@@ -3,7 +3,7 @@ const fs = require('fs');
 const queryOverpass = require('@derhuerst/query-overpass');
 
 function overpassInput({ bbox, timeout = 300, cachePath = null }) {
-  return async function({ onItem, onComplete }) {
+  return async function input({ onItem, onComplete }) {
     let result = null;
 
     if (cachePath != null && fs.existsSync(cachePath)) {
@@ -22,7 +22,7 @@ function overpassInput({ bbox, timeout = 300, cachePath = null }) {
       debug(query);
 
       result = queryOverpass(query)
-        .then(data => {
+        .then((data) => {
           debug(`Received ${data.length} rows`);
           if (cachePath != null) {
             debug('Writing overpass cache');
@@ -34,7 +34,7 @@ function overpassInput({ bbox, timeout = 300, cachePath = null }) {
     }
 
     result
-      .then(items => items.forEach(onItem))
+      .then((items) => items.forEach(onItem))
       .then(() => onComplete());
   };
 }

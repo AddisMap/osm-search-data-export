@@ -1,3 +1,4 @@
+/* eslint-disable global-require */
 module.exports = {
   jsonInput: require('./json'),
   memoryInput: require('./memory'),
